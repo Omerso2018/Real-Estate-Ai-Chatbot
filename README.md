@@ -39,7 +39,7 @@ Replace YOUR_OPENROUTER_API_KEY_HERE with your OpenRouter API key.
 Replace https://yourdomain.com/wp-json/wp/v2/property with your WordPress property endpoint URL.  
 
 ------------
-🔌 WordPress REST API Setup
+# 🔌 WordPress REST API Setup
 
 Ensure your WordPress site has:
 
