@@ -59,7 +59,7 @@ You can filter results by adding query params such as:
  ```
 -----------
 
-#🚀 Usage
+# 🚀 Usage
 
 Click the floating chat icon to open the chatbot.
 
@@ -77,7 +77,7 @@ Fetch matching properties from your WordPress site.
 
 Display them as interactive cards in the chat.
 
-##🛡️ Rate Limiting & Caching
+## 🛡️ Rate Limiting & Caching
 
 AI API calls are limited to 8 per minute by default.
 
@@ -85,6 +85,6 @@ Property API calls are limited to 5 per minute with a 5-minute cache.
 
 These values can be adjusted in the configuration.
 
-##📄 License
+## 📄 License
 
 This project is licensed under the MIT License – see the LICENSE file for details.
