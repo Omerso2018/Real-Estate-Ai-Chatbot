@@ -65,17 +65,17 @@ Click the floating chat icon to open the chatbot.
 
 Ask questions like:
 
-"Find me an apartment in New York under $800,000"
+❓ "Find me an apartment in New York under $800,000" 
 
-"Show me houses in Dubai with 4 bedrooms"
+❓ "Show me houses in Dubai with 4 bedrooms"
 
 The chatbot will:
 
-Detect your intent and extract filters.
+✅ Detect your intent and extract filters.
 
-Fetch matching properties from your WordPress site.
+✅ Fetch matching properties from your WordPress site.
 
-Display them as interactive cards in the chat.
+✅ Display them as interactive cards in the chat.
 
 ## 🛡️ Rate Limiting & Caching
 
