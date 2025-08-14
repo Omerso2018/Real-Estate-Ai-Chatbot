@@ -25,7 +25,7 @@ It integrates with the **[OpenRouter API](https://openrouter.ai/)** for natural 
 
 1. **Download** or **clone** this repository:
    ```bash
-   git clone https://github.com/Omerso2018/real-estate-ai-Chatbot
+   git clone https://github.com/Omerso2018/Real-Estate-Ai-Chatbot
 2. Add the chatbot HTML file to your real estate website:
 
 Place the wp-real-estate-agent.html in your project or theme folder.
