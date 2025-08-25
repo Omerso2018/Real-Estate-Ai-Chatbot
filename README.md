@@ -26,7 +26,7 @@ It integrates with the **[OpenRouter API](https://openrouter.ai/)** for natural 
 
 ### 1. Download the Files
 ```bash
-git clone https://github.com/yourusername/real-estate-chatbot.git
+git clone https://github.com/omersx/real-estate-chatbot.git
 cd real-estate-chatbot
  ```
 ### 2. Configure API Keys
@@ -48,7 +48,19 @@ const config = {
     secondaryColor: '#ef4444'
 };
  ```
+## 📥 Installation & Usage
 
+## ✅ WordPress Integration
+
+1. Open your WordPress admin panel.
+2. Go to **Plugins** > **WPCode** (or any other Code Snippet manager).
+3. Create a new **HTML snippet**.
+4. Copy the content of `WP-Chatbot-Dark.html` into the snippet.
+5. Save and enable the snippet on the frontend.
+
+> 💡 The chatbot widget will appear as a floating bubble on the bottom-right corner of your website.
+
+---
 ------------------------------------------
 
 ## 📝 How It Works
