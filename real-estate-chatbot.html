@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate AI Agent - Property Search Assistant</title>
+    <style>
+        /* ===== RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.4);
+            }
+            50% {
+                transform: scale(1.03);
+                box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.5);
+            }
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes typingDots {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-8px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes propertyCardSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .real-estate-chatbot {
+            --primary-color: #dc2626;
+            --secondary-color: #ef4444;
+            --primary-rgb: 220, 38, 38;
+            --secondary-rgb: 239, 68, 68;
+            --success-color: #16a34a;
+            --error-color: #dc2626;
+            --background-color: #fafafa;
+            --text-color: #333;
+            --light-text: #666;
+            --border-color: #eee;
+            --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.15);
+            --shadow-heavy: 0 10px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 20px;
+            --border-radius-small: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        .real-estate-chatbot .chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            animation: pulse-glow 2.5s ease-in-out infinite;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .real-estate-chatbot .chatbot-toggle:hover {
+            animation: none;
+            transform: scale(1.12);
+            box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.6);
+        }
+
+        .real-estate-chatbot .chatbot-toggle:focus {
+            outline: 2px solid rgba(var(--primary-rgb), 0.7);
+            outline-offset: 2px;
+            animation: none;
+        }
+
+        .real-estate-chatbot .chatbot-toggle svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .real-estate-chatbot .chatbot-widget {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 400px;
+            height: 450px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-heavy);
+            z-index: 10000;
+            transform: scale(0) translateY(20px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .real-estate-chatbot .chatbot-widget.open {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .real-estate-chatbot .chat-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 20px;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .real-estate-chatbot .chat-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+            pointer-events: none;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .real-estate-chatbot .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        .real-estate-chatbot .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .real-estate-chatbot .bot-avatar.header-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-glow 3s ease-in-out infinite;
+            border: 2px solid white;
+            overflow: hidden;
+            background-color: white;
+            transition: var(--transition);
+        }
+
+        .real-estate-chatbot .bot-avatar.header-avatar:hover {
+            animation: none;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .real-estate-chatbot .bot-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .real-estate-chatbot .header-info h3 {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .real-estate-chatbot .online-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+        }
+
+        .real-estate-chatbot .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .real-estate-chatbot .status-dot.failed {
+            background: var(--error-color);
+            animation: none;
+        }
+
+        .real-estate-chatbot .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
+
+        .real-estate-chatbot .close-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .real-estate-chatbot .close-btn:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.8);
+            outline-offset: 2px;
+        }
+
+        .real-estate-chatbot .close-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .real-estate-chatbot .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--background-color);
+            min-height: 0;
+        }
+
+        .real-estate-chatbot .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .real-estate-chatbot .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .real-estate-chatbot .chat-messages::-webkit-scrollbar-thumb {
+            background: #b0b0b0;
+            border-radius: 3px;
+        }
+
+        .real-estate-chatbot .message {
+            display: flex;
+            margin-bottom: 16px;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        .real-estate-chatbot .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin: 0 8px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+        }
+
+        .real-estate-chatbot .bot-avatar.message-avatar {
+            background-color: #e9ecef;
+            border: 1px solid #d1d1d1;
+        }
+
+        .real-estate-chatbot .user-message-avatar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: 1px solid var(--primary-color);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .real-estate-chatbot .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .real-estate-chatbot .message-content h1, 
+        .real-estate-chatbot .message-content h2, 
+        .real-estate-chatbot .message-content h3 {
+            margin: 8px 0 4px 0;
+            font-weight: 600;
+        }
+
+        .real-estate-chatbot .message-content h1 { font-size: 18px; }
+        .real-estate-chatbot .message-content h2 { font-size: 16px; }
+        .real-estate-chatbot .message-content h3 { font-size: 15px; }
+
+        .real-estate-chatbot .message-content p {
+            margin: 4px 0;
+        }
+
+        .real-estate-chatbot .message-content ul, 
+        .real-estate-chatbot .message-content ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .real-estate-chatbot .message-content li {
+            margin: 2px 0;
+        }
+
+        .real-estate-chatbot .message-content code {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .real-estate-chatbot .message-content pre {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 8px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+
+        .real-estate-chatbot .message-content blockquote {
+            border-left: 3px solid #ddd;
+            margin: 8px 0;
+            padding-left: 12px;
+            color: var(--light-text);
+        }
+
+        .real-estate-chatbot .bot-message .message-content {
+            background: #e9ecef;
+            color: var(--text-color);
+            border-bottom-left-radius: 6px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .real-estate-chatbot .user-message {
+            justify-content: flex-end;
+        }
+
+        .real-estate-chatbot .user-message .message-content {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.2);
+        }
+
+        /* ===== PROPERTY CARDS SECTION ===== */
+        .real-estate-chatbot .properties-section {
+            margin: 16px 0;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .real-estate-chatbot .properties-header {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .real-estate-chatbot .properties-grid {
+            display: grid;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .real-estate-chatbot .property-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid #eee;
+            animation: propertyCardSlide 0.3s ease-out;
+            cursor: pointer;
+        }
+
+        .real-estate-chatbot .property-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+            border-color: var(--primary-color);
+        }
+
+        .real-estate-chatbot .property-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+
+        .real-estate-chatbot .property-content {
+            padding: 12px;
+        }
+
+        .real-estate-chatbot .property-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 6px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .real-estate-chatbot .property-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .real-estate-chatbot .property-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .real-estate-chatbot .property-location {
+            font-size: 12px;
+            color: var(--light-text);
+            background: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .real-estate-chatbot .property-details {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--light-text);
+        }
+
+        .real-estate-chatbot .property-detail {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .real-estate-chatbot .no-properties {
+            text-align: center;
+            padding: 20px;
+            color: var(--light-text);
+            font-style: italic;
+        }
+
+        .real-estate-chatbot .loading-properties {
+            text-align: center;
+            padding: 20px;
+            color: var(--light-text);
+        }
+
+        .real-estate-chatbot .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .real-estate-chatbot .typing-indicator-message {
+            display: flex;
+            margin-bottom: 16px;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        .real-estate-chatbot .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #e9ecef;
+            color: var(--light-text);
+            border-radius: 18px;
+            border-bottom-left-radius: 6px;
+            box-shadow: var(--shadow-light);
+            max-width: 80px;
+        }
+
+        .real-estate-chatbot .typing-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .real-estate-chatbot .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typingDots 1.4s infinite ease-in-out;
+        }
+
+        .real-estate-chatbot .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .real-estate-chatbot .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .real-estate-chatbot .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        .real-estate-chatbot .chat-input {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .real-estate-chatbot .input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 6px 12px;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .real-estate-chatbot .input-container:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+        }
+
+        .real-estate-chatbot .message-input {
+            flex: 1;
+            border: none;
+            background: none;
+            outline: none;
+            font-size: 14px;
+            padding: 8px 0;
+        }
+
+        .real-estate-chatbot .message-input::placeholder {
+            color: #999;
+        }
+
+        .real-estate-chatbot .send-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .real-estate-chatbot .send-btn:hover, 
+        .real-estate-chatbot .send-btn:focus {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
+            outline: none;
+        }
+
+        .real-estate-chatbot .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .real-estate-chatbot .send-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: white;
+        }
+
+        .real-estate-chatbot .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+            padding: 10px 15px;
+            border-radius: var(--border-radius-small);
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .real-estate-chatbot .error-message svg {
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            fill: #c62828;
+        }
+
+        /* Quick Actions */
+        .real-estate-chatbot .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .real-estate-chatbot .quick-action {
+            background: rgba(var(--primary-rgb), 0.1);
+            border: 1px solid rgba(var(--primary-rgb), 0.2);
+            color: var(--primary-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .real-estate-chatbot .quick-action:hover {
+            background: rgba(var(--primary-rgb), 0.2);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 480px) {
+            .real-estate-chatbot .chatbot-widget {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                width: auto;
+                height: 58vh;
+                max-height: 600px;
+                border-radius: 15px;
+            }
+
+            .real-estate-chatbot .chatbot-toggle {
+                bottom: 15px;
+                right: 15px;
+                width: 55px;
+                height: 55px;
+            }
+
+            .real-estate-chatbot .chat-header {
+                padding: 15px;
+            }
+
+            .real-estate-chatbot .header-info h3 {
+                font-size: 16px;
+            }
+
+            .real-estate-chatbot .chat-input {
+                padding: 10px 15px;
+            }
+
+            .real-estate-chatbot .property-image {
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Chat Toggle Button -->
+    <div class="real-estate-chatbot">
+        <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Open real estate chat">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+        </button>
+
+        <!-- Chat Widget -->
+        <div id="chatbot-widget" class="chatbot-widget" role="dialog" aria-labelledby="chat-title" aria-modal="true" tabindex="-1">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <div class="bot-avatar header-avatar">
+                            <img id="header-bot-avatar" src="" alt="" aria-hidden="true">
+                        </div>
+                        <div class="header-info">
+                            <h3 id="chat-title">Real Estate AI Agent</h3>
+                            <div class="online-status">
+                                <div class="status-dot" id="status-dot" aria-hidden="true"></div>
+                                <span class="sr-only" id="status-text">Online</span>
+                                <span id="status-message">Ready to find properties</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="close-btn" id="close-chat" aria-label="Close chat">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="chat-messages" id="chat-messages" aria-live="polite" aria-atomic="true">
+                <!-- Messages will be appended here -->
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input">
+                <div class="input-container">
+                    <input type="text" id="message-input" class="message-input" placeholder="Tell me about the property you're looking for..." aria-label="Type your property requirements">
+                    <button class="send-btn" id="send-btn" aria-label="Send message">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class RealEstateAIAgent {
+            constructor(config = {}) {
+                this.config = this.mergeConfig(config);
+                this.state = {
+                    isOpen: false,
+                    isProcessing: false,
+                    conversationMemory: [],
+                    maxMemorySize: 10,
+                    propertyCache: new Map(),
+                    cacheExpiry: 20000,
+                    currentStage: 'initial_greeting',
+                    userPreferences: {},
+                    isGatheringInfo: true,
+                    extractedInfo: {},
+                    usdToAedRate: 3.67,
+                    hasGreeted: false
+                };
+                
+                this.elements = this.initializeElements();
+                this.setupEventListeners();
+                this.applyConfiguration();
+                this.showInitialMessage();
+                this.updateConnectionStatus('online');
+            }
+
+            mergeConfig(userConfig) {
+                const defaultConfig = {
+                    // Bot Configuration
+                    botName: 'PropertyFinder AI',
+                    botAvatarHeaderUrl: 'https://cdn-icons-png.flaticon.com/256/6091/6091057.png',
+                    botAvatarMessageUrl: 'https://cdn-icons-png.flaticon.com/256/6091/6091057.png',
+                    userAvatarUrl: 'https://cdn-icons-png.flaticon.com/256/10307/10307911.png',
+                    
+                    // Theme Configuration
+                    primaryColor: '#dc2626',
+                    secondaryColor: '#ef4444',
+                    
+                    // API Configuration - REPLACE WITH YOUR API KEY
+                    apiKey: 'YOUR_API_KEY_HERE',
+                    apiUrl: 'https://openrouter.ai/api/v1/chat/completions',
+                    extractorModel: 'cognitivecomputations/dolphin3.0-mistral-24b:free',
+                    formatterModel: 'mistralai/mistral-small-3.2-24b-instruct:free',
+                    complexResponseModel: 'cognitivecomputations/dolphin3.0-mistral-24b:free',
+                    maxTokens: 500,
+                    temperature: 0.1,
+                    
+                    // WordPress API Configuration - REPLACE WITH YOUR WORDPRESS API URL
+                    wpApiUrl: 'YOUR_WORDPRESS_API_URL/wp-json/wp/v2/property',
+                    wpApiKey: '',
+                    
+                    // Messages Configuration
+                    initialMessage: "👋 Hello! I'm your Real Estate AI Agent. I'll help you find the perfect property by asking you a few questions first.\n\nAre you looking to buy or rent a property?",
+                    greetingMessage: "👋 Hi there! Great to see you! I'm here to help you find your perfect property. Let me start by asking - are you looking to **buy** or **rent** a property?",
+                    
+                    // Feature Configuration
+                    showTypingIndicator: true,
+                    enableMarkdown: true,
+                    maxPropertiesDisplay: 8,
+                    enableRetry: true,
+                    retryAttempts: 3,
+                    prioritizeLocation: true,
+                    flexibleFiltering: true,
+                    enableQuickActions: true,
+                    
+                    // Greeting keywords
+                    greetingKeywords: ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'greetings', 'salaam', 'salam', 'ahlan', 'marhaba']
+                };
+                
+                return { ...defaultConfig, ...userConfig };
+            }
+
+            initializeElements() {
+                return {
+                    toggle: document.getElementById('chatbot-toggle'),
+                    widget: document.getElementById('chatbot-widget'),
+                    closeBtn: document.getElementById('close-chat'),
+                    messageInput: document.getElementById('message-input'),
+                    sendBtn: document.getElementById('send-btn'),
+                    messagesContainer: document.getElementById('chat-messages'),
+                    headerTitle: document.getElementById('chat-title'),
+                    headerAvatar: document.getElementById('header-bot-avatar'),
+                    statusDot: document.getElementById('status-dot'),
+                    statusText: document.getElementById('status-text'),
+                    statusMessage: document.getElementById('status-message')
+                };
+            }
+
+            applyConfiguration() {
+                this.applyTheme();
+                this.elements.headerTitle.textContent = this.config.botName;
+                
+                this.elements.headerAvatar.src = this.config.botAvatarHeaderUrl;
+                this.elements.headerAvatar.alt = `${this.config.botName} Avatar`;
+                this.elements.headerAvatar.onerror = () => {
+                    this.elements.headerAvatar.style.display = 'none';
+                    this.elements.headerAvatar.parentElement.innerHTML = '🏠';
+                    this.elements.headerAvatar.parentElement.style.fontSize = '20px';
+                };
+            }
+
+            applyTheme() {
+                const container = document.querySelector('.real-estate-chatbot');
+                container.style.setProperty('--primary-color', this.config.primaryColor);
+                container.style.setProperty('--secondary-color', this.config.secondaryColor);
+                
+                const primaryRgb = this.hexToRgb(this.config.primaryColor);
+                const secondaryRgb = this.hexToRgb(this.config.secondaryColor);
+                
+                if (primaryRgb) {
+                    container.style.setProperty('--primary-rgb', `${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}`);
+                }
+                if (secondaryRgb) {
+                    container.style.setProperty('--secondary-rgb', `${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b}`);
+                }
+            }
+
+            hexToRgb(hex) {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
+            }
+
+            setupEventListeners() {
+                this.elements.toggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleChat();
+                });
+
+                this.elements.closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.closeChat();
+                });
+
+                this.elements.sendBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.sendMessage();
+                });
+
+                this.elements.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                this.elements.widget.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+
+                this.elements.messagesContainer.addEventListener('click', (e) => {
+                    if (e.target.closest('.property-card')) {
+                        const card = e.target.closest('.property-card');
+                        const link = card.dataset.link;
+                        if (link) {
+                            window.open(link, '_blank');
+                        }
+                    }
+                    
+                    if (e.target.closest('.quick-action')) {
+                        const action = e.target.closest('.quick-action');
+                        const actionText = action.textContent;
+                        this.elements.messageInput.value = actionText;
+                        this.sendMessage();
+                    }
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.state.isOpen) {
+                        this.closeChat();
+                    }
+                });
+            }
+
+            toggleChat() {
+                if (this.state.isOpen) {
+                    this.closeChat();
+                } else {
+                    this.openChat();
+                }
+            }
+
+            openChat() {
+                this.elements.widget.classList.add('open');
+                this.elements.toggle.setAttribute('aria-label', 'Close real estate chat');
+                this.elements.widget.setAttribute('aria-hidden', 'false');
+                this.state.isOpen = true;
+                
+                setTimeout(() => {
+                    this.elements.messageInput.focus();
+                    this.scrollToBottom();
+                }, 350);
+            }
+
+            closeChat() {
+                this.elements.widget.classList.remove('open');
+                this.elements.toggle.setAttribute('aria-label', 'Open real estate chat');
+                this.elements.widget.setAttribute('aria-hidden', 'true');
+                this.elements.toggle.focus();
+                this.state.isOpen = false;
+            }
+
+            async sendMessage() {
+                const message = this.elements.messageInput.value.trim();
+                if (message && !this.state.isProcessing) {
+                    this.addMessage(message, 'user');
+                    this.elements.messageInput.value = '';
+                    this.elements.sendBtn.disabled = true;
+                    
+                    await this.processUserMessage(message);
+                    
+                    this.elements.sendBtn.disabled = false;
+                }
+            }
+
+            isGreeting(message) {
+                const lowerMessage = message.toLowerCase();
+                return this.config.greetingKeywords.some(keyword => 
+                    lowerMessage.includes(keyword)
+                );
+            }
+
+            async processUserMessage(userMessage) {
+                try {
+                    this.state.isProcessing = true;
+                    this.updateConnectionStatus('online');
+                    
+                    if (this.config.showTypingIndicator) {
+                        this.showTypingIndicator();
+                    }
+
+                    // Check if this is a greeting and we haven't greeted yet
+                    if (this.isGreeting(userMessage) && !this.state.hasGreeted) {
+                        await this.handleGreeting(userMessage);
+                        return;
+                    }
+
+                    await this.extractInformationFromComplexResponse(userMessage);
+
+                    if (this.state.isGatheringInfo) {
+                        await this.handleInfoGathering(userMessage);
+                    } else {
+                        await this.handlePropertySearch(userMessage);
+                    }
+
+                } catch (error) {
+                    if (this.config.showTypingIndicator) {
+                        this.hideTypingIndicator();
+                    }
+                    this.handleError(error);
+                } finally {
+                    this.state.isProcessing = false;
+                }
+            }
+
+            async handleGreeting(userMessage) {
+                this.state.hasGreeted = true;
+                this.state.currentStage = 'greeting';
+                
+                if (this.config.showTypingIndicator) {
+                    this.hideTypingIndicator();
+                }
+
+                this.addMessage(this.config.greetingMessage, 'bot');
+                
+                if (this.config.enableQuickActions) {
+                    this.addQuickActions(['I want to buy', 'I want to rent', 'Show me properties']);
+                }
+            }
+
+            addQuickActions(actions) {
+                const quickActionsDiv = document.createElement('div');
+                quickActionsDiv.className = 'quick-actions';
+                
+                actions.forEach(action => {
+                    const actionBtn = document.createElement('button');
+                    actionBtn.className = 'quick-action';
+                    actionBtn.textContent = action;
+                    quickActionsDiv.appendChild(actionBtn);
+                });
+                
+                this.elements.messagesContainer.appendChild(quickActionsDiv);
+                this.scrollToBottom();
+            }
+
+            async extractInformationFromComplexResponse(userMessage) {
+                try {
+                    const systemPrompt = `You are an expert information extractor for real estate queries. Extract any relevant property search information from the user's message and return ONLY a JSON object with the following structure. If information is not mentioned, use empty string or 0:
+
+{
+  "purpose": "buy|rent|Buy|Rent|", 
+  "location": "location name or empty",
+  "budget": 0,
+  "bedrooms": 0,
+  "bathrooms": 0,
+  "propertyType": "villa|apartment|house|penthouse|department|Villa|Apartment|House|Penthouse|Department|",
+  "additional": "any other preferences or empty"
+}
+
+Examples:
+- "I want to buy a 3 bedroom villa in Dubai Marina for 2 million" → {"purpose":"buy","location":"Dubai Marina","budget":2000000,"bedrooms":3,"bathrooms":0,"propertyType":"villa","additional":""}
+- "Looking for rent apartment downtown with 2 beds and pool" → {"purpose":"rent","location":"downtown","budget":0,"bedrooms":2,"bathrooms":0,"propertyType":"apartment","additional":"pool"}`;
+
+                    const response = await this.callAI(this.config.complexResponseModel, systemPrompt, userMessage, 0.1);
+                    const cleanResponse = response.replace(/```json\n?|```\n?/g, '').trim();
+                    
+                    try {
+                        const extractedInfo = JSON.parse(cleanResponse);
+                        
+                        if (extractedInfo.purpose && !this.state.userPreferences.purpose) {
+                            this.state.userPreferences.purpose = extractedInfo.purpose.toLowerCase();
+                        }
+                        if (extractedInfo.location && !this.state.userPreferences.location) {
+                            this.state.userPreferences.location = extractedInfo.location;
+                        }
+                        if (extractedInfo.budget > 0 && !this.state.userPreferences.budget) {
+                            this.state.userPreferences.budget = extractedInfo.budget;
+                        }
+                        if (extractedInfo.bedrooms > 0 && !this.state.userPreferences.bedrooms) {
+                            this.state.userPreferences.bedrooms = extractedInfo.bedrooms;
+                        }
+                        if (extractedInfo.bathrooms > 0 && !this.state.userPreferences.bathrooms) {
+                            this.state.userPreferences.bathrooms = extractedInfo.bathrooms;
+                        }
+                        if (extractedInfo.propertyType && !this.state.userPreferences.propertyType) {
+                            this.state.userPreferences.propertyType = extractedInfo.propertyType.toLowerCase();
+                        }
+                        if (extractedInfo.additional && !this.state.userPreferences.additional) {
+                            this.state.userPreferences.additional = extractedInfo.additional;
+                        }
+
+                        this.state.extractedInfo = extractedInfo;
+
+                    } catch (parseError) {
+                        console.log('Info extraction failed, continuing normally');
+                    }
+                    
+                } catch (error) {
+                    console.log('Complex response processing failed, continuing normally');
+                }
+            }
+
+            async handleInfoGathering(userMessage) {
+                const lowerMessage = userMessage.toLowerCase();
+                const extracted = this.state.extractedInfo;
+                
+                if (extracted && this.hasCompleteInformation(extracted)) {
+                    await this.completeInfoGathering();
+                    return;
+                }
+                
+                switch (this.state.currentStage) {
+                    case 'initial_greeting':
+                    case 'greeting':
+                        if (this.state.userPreferences.purpose || lowerMessage.includes('buy') || lowerMessage.includes('purchase')) {
+                            this.state.userPreferences.purpose = this.state.userPreferences.purpose || 'buy';
+                            this.state.currentStage = 'location';
+                            
+                            if (this.state.userPreferences.location) {
+                                this.state.currentStage = 'budget';
+                                this.respondAndAsk(`Great! You're looking to buy in ${this.state.userPreferences.location}. 🏠\n\nWhat's your budget range? Please provide your maximum budget in AED (e.g., "2000000 AED" or "2 million AED").`);
+                            } else {
+                                this.respondAndAsk("Great! You're looking to buy. 🏠\n\nWhich location or area are you interested in? (e.g., Dubai Marina, Downtown Dubai, Business Bay, etc.)");
+                            }
+                        } else if (this.state.userPreferences.purpose || lowerMessage.includes('rent') || lowerMessage.includes('rental')) {
+                            this.state.userPreferences.purpose = this.state.userPreferences.purpose || 'rent';
+                            this.state.currentStage = 'location';
+                            
+                            if (this.state.userPreferences.location) {
+                                this.state.currentStage = 'budget';
+                                this.respondAndAsk(`Perfect! You're looking to rent in ${this.state.userPreferences.location}. 🏡\n\nWhat's your budget range? Please provide your maximum budget in AED (e.g., "150000 AED" or "150k AED annually").`);
+                            } else {
+                                this.respondAndAsk("Perfect! You're looking to rent. 🏡\n\nWhich location or area would you prefer? (e.g., Dubai Marina, Downtown Dubai, Business Bay, etc.)");
+                            }
+                        } else {
+                            this.respondAndAsk("I'd like to help you find the perfect property! Are you looking to **buy** or **rent**?");
+                            if (this.config.enableQuickActions) {
+                                this.addQuickActions(['Buy', 'Rent']);
+                            }
+                        }
+                        break;
+
+                    case 'location':
+                        this.state.userPreferences.location = this.state.userPreferences.location || userMessage;
+                        this.state.currentStage = 'budget';
+                        
+                        if (this.state.userPreferences.budget) {
+                            this.state.currentStage = 'bedrooms';
+                            this.respondAndAsk(`Great choice! ${this.state.userPreferences.location} is a wonderful area with budget ${this.formatPriceAED(this.state.userPreferences.budget)}. 📍\n\nHow many bedrooms do you need? (e.g., 1, 2, 3, 4, or more)`);
+                        } else {
+                            this.respondAndAsk(`Great choice! ${this.state.userPreferences.location} is a wonderful area. 📍\n\nWhat's your budget range? Please provide your maximum budget in AED (e.g., "2000000 AED" or "2 million AED").`);
+                            if (this.config.enableQuickActions) {
+                                this.addQuickActions(['1M AED', '2M AED', '5M AED', 'No budget limit']);
+                            }
+                        }
+                        break;
+
+                    case 'budget':
+                        const budget = this.state.userPreferences.budget || this.extractBudgetAED(userMessage);
+                        this.state.userPreferences.budget = budget;
+                        this.state.currentStage = 'bedrooms';
+                        
+                        if (this.state.userPreferences.bedrooms) {
+                            this.state.currentStage = 'property_type';
+                            this.respondAndAsk(`Perfect! Budget noted: ${this.formatPriceAED(budget)} for ${this.state.userPreferences.bedrooms} bedroom${this.state.userPreferences.bedrooms > 1 ? 's' : ''}. 💰\n\nWhat type of property are you looking for? (e.g., villa, apartment, department, house, penthouse)`);
+                        } else {
+                            this.respondAndAsk(`Perfect! Budget noted: ${this.formatPriceAED(budget)} 💰\n\nHow many bedrooms do you need? (e.g., 1, 2, 3, 4, or more)`);
+                            if (this.config.enableQuickActions) {
+                                this.addQuickActions(['1 bedroom', '2 bedrooms', '3 bedrooms', '4+ bedrooms']);
+                            }
+                        }
+                        break;
+
+                    case 'bedrooms':
+                        const bedrooms = this.state.userPreferences.bedrooms || this.extractNumber(userMessage);
+                        this.state.userPreferences.bedrooms = bedrooms;
+                        this.state.currentStage = 'property_type';
+                        
+                        if (this.state.userPreferences.propertyType) {
+                            this.state.currentStage = 'additional_preferences';
+                            this.respondAndAsk(`${bedrooms} bedroom${bedrooms > 1 ? 's' : ''} ${this.state.userPreferences.propertyType} - excellent choice! 🛏️\n\nAny additional preferences? (e.g., number of bathrooms, parking, pool, furnished, etc.) Or type "search now" to find properties.`);
+                        } else {
+                            this.respondAndAsk(`${bedrooms} bedroom${bedrooms > 1 ? 's' : ''} - noted! 🛏️\n\nWhat type of property are you looking for? (e.g., villa, apartment, department, house, penthouse)`);
+                            if (this.config.enableQuickActions) {
+                                this.addQuickActions(['Villa', 'Apartment', 'House', 'Penthouse']);
+                            }
+                        }
+                        break;
+
+                    case 'property_type':
+                        this.state.userPreferences.propertyType = this.state.userPreferences.propertyType || userMessage.toLowerCase();
+                        this.state.currentStage = 'additional_preferences';
+                        
+                        if (this.state.userPreferences.additional) {
+                            await this.completeInfoGathering();
+                        } else {
+                            this.respondAndAsk(`${this.state.userPreferences.propertyType} - excellent choice! 🏠\n\nAny additional preferences? (e.g., number of bathrooms, parking, pool, furnished, etc.) Or type "search now" to find properties.`);
+                            if (this.config.enableQuickActions) {
+                                this.addQuickActions(['Search now', 'Add preferences']);
+                            }
+                        }
+                        break;
+
+                    case 'additional_preferences':
+                        if (lowerMessage.includes('search') || lowerMessage.includes('find') || lowerMessage.includes('show') || lowerMessage.includes('no') || lowerMessage.includes('none')) {
+                            await this.completeInfoGathering();
+                        } else {
+                            this.state.userPreferences.additional = userMessage;
+                            await this.completeInfoGathering();
+                        }
+                        break;
+
+                    default:
+                        await this.completeInfoGathering();
+                        break;
+                }
+            }
+
+            hasCompleteInformation(extracted) {
+                return extracted && 
+                       extracted.purpose && 
+                       extracted.location && 
+                       (extracted.budget > 0 || extracted.bedrooms > 0 || extracted.propertyType);
+            }
+
+            extractBudgetAED(text) {
+                const cleanText = text.replace(/,/g, '').toLowerCase();
+                const numbers = cleanText.match(/\d+/g);
+                
+                if (!numbers) return 1000000; 
+                
+                const mainNumber = parseInt(numbers[0]);
+                
+                if (cleanText.includes('million') || cleanText.includes('m')) {
+                    return mainNumber * 1000000;
+                } else if (cleanText.includes('thousand') || cleanText.includes('k')) {
+                    return mainNumber * 1000;
+                } else if (mainNumber > 1000000) {
+                    return mainNumber; 
+                } else if (mainNumber > 1000) {
+                    return mainNumber; 
+                } else {
+                    return mainNumber * 1000; 
+                }
+            }
+
+            formatPriceAED(price) {
+                if (!price || price === 0) return 'Contact for price';
+                
+                const aedPrice = price;
+                
+                if (aedPrice >= 1000000) {
+                    const millions = (aedPrice / 1000000).toFixed(1);
+                    return `${millions}M AED`;
+                } else if (aedPrice >= 1000) {
+                    const thousands = (aedPrice / 1000).toFixed(0);
+                    return `${thousands}K AED`;
+                } else {
+                    return `${aedPrice.toLocaleString()} AED`;
+                }
+            }
+
+            async completeInfoGathering() {
+                this.state.isGatheringInfo = false;
+                
+                if (this.config.showTypingIndicator) {
+                    this.hideTypingIndicator();
+                }
+
+                const summary = this.createPreferencesSummary();
+                this.addMessage(summary, 'bot');
+
+                if (this.config.showTypingIndicator) {
+                    this.showTypingIndicator();
+                }
+
+                await this.searchProperties();
+            }
+
+            createPreferencesSummary() {
+                const prefs = this.state.userPreferences;
+                let summary = "Perfect! Let me search for properties based on your preferences:\n\n";
+                
+                summary += `🎯 **Purpose:** ${prefs.purpose || 'Any'}\n`;
+                summary += `📍 **Location:** ${prefs.location || 'Any area'}\n`;
+                summary += `💰 **Budget:** ${this.formatPriceAED(prefs.budget) || 'Flexible'}\n`;
+                summary += `🛏️ **Bedrooms:** ${prefs.bedrooms || 'Any'}\n`;
+                summary += `🏠 **Type:** ${prefs.propertyType || 'Any'}\n`;
+                
+                if (prefs.additional) {
+                    summary += `✨ **Additional:** ${prefs.additional}\n`;
+                }
+                
+                summary += "\n🔍 Searching our database now...";
+                
+                return summary;
+            }
+
+            async searchProperties() {
+                try {
+                    console.log('Starting property search with preferences:', this.state.userPreferences);
+                    
+                    const filters = this.createFiltersFromPreferences();
+                    console.log('Created filters:', filters);
+                    
+                    const properties = await this.fetchPropertiesFromWP(filters);
+                    console.log('Fetched properties:', properties.length);
+                    
+                    const aiResponse = await this.formatSearchResults(properties);
+                    console.log('Generated AI response');
+                    
+                    if (this.config.showTypingIndicator) {
+                        this.hideTypingIndicator();
+                    }
+
+                    this.addMessage(aiResponse, 'bot');
+                    
+                    if (properties.length > 0) {
+                        console.log('Displaying properties:', properties.length);
+                        this.displayProperties(properties);
+                    } else {
+                        console.log('No properties found, trying broader search');
+                        const broaderProperties = await this.fetchPropertiesFromWP({
+                            search: this.state.userPreferences.location || '',
+                            per_page: this.config.maxPropertiesDisplay
+                        });
+                        
+                        if (broaderProperties.length > 0) {
+                            this.addMessage("I found some properties in your preferred area that might interest you:", 'bot');
+                            this.displayProperties(broaderProperties);
+                        } else {
+                            this.addMessage("Let me show you some available properties from our database:", 'bot');
+                            const allProperties = await this.fetchPropertiesFromWP({ per_page: this.config.maxPropertiesDisplay });
+                            if (allProperties.length > 0) {
+                                this.displayProperties(allProperties);
+                            }
+                        }
+                    }
+
+                    // Add quick actions for further assistance
+                    if (this.config.enableQuickActions) {
+                        this.addQuickActions(['Search again', 'Change preferences', 'Contact agent']);
+                    }
+
+                } catch (error) {
+                    console.error('Property search error:', error);
+                    if (this.config.showTypingIndicator) {
+                        this.hideTypingIndicator();
+                    }
+                    throw error;
+                }
+            }
+
+            createFiltersFromPreferences() {
+                const prefs = this.state.userPreferences;
+                return {
+                    search: prefs.location || '',
+                    per_page: this.config.maxPropertiesDisplay,
+                    preferences: prefs
+                };
+            }
+
+            async handlePropertySearch(userMessage) {
+                const filters = { 
+                    search: userMessage,
+                    per_page: this.config.maxPropertiesDisplay 
+                };
+                const properties = await this.fetchPropertiesFromWP(filters);
+                const aiResponse = await this.formatAnswer(userMessage, properties);
+                
+                if (this.config.showTypingIndicator) {
+                    this.hideTypingIndicator();
+                }
+
+                this.addMessage(aiResponse, 'bot');
+                
+                if (properties.length > 0) {
+                    this.displayProperties(properties);
+                }
+
+                if (this.config.enableQuickActions) {
+                    this.addQuickActions(['New search', 'Filter results', 'Contact agent']);
+                }
+            }
+
+            extractNumber(text) {
+                if (typeof text === 'number') return text;
+                if (!text) return 0;
+                
+                const match = text.toString().match(/\d+/);
+                return match ? parseInt(match[0]) : 0;
+            }
+
+            async fetchPropertiesFromWP(filters) {
+                try {
+                    console.log('Fetching properties with filters:', filters);
+                    
+                    const cacheKey = JSON.stringify(filters);
+                    const cached = this.state.propertyCache.get(cacheKey);
+                    
+                    if (cached && (Date.now() - cached.timestamp) < this.config.cacheExpiry) {
+                        console.log('Using cached properties');
+                        return cached.properties;
+                    }
+
+                    const url = new URL(this.config.wpApiUrl);
+                    const params = new URLSearchParams();
+                    
+                    if (filters.search) {
+                        params.append('search', filters.search);
+                    }
+                    
+                    params.append('per_page', (filters.per_page || this.config.maxPropertiesDisplay).toString());
+                    params.append('page', '1');
+                    
+                    url.search = params.toString();
+                    console.log('Fetching from URL:', url.toString());
+                    
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (this.config.wpApiKey) {
+                        headers['Authorization'] = `Bearer ${this.config.wpApiKey}`;
+                    }
+                    
+                    const response = await fetch(url.toString(), { headers });
+                    
+                    if (!response.ok) {
+                        throw new Error(`WordPress API Error ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('Raw API response:', data.length, 'properties');
+                    
+                    const properties = this.normalizePropertyData(data, filters);
+                    console.log('Normalized properties:', properties.length);
+
+                    this.state.propertyCache.set(cacheKey, {
+                        properties,
+                        timestamp: Date.now()
+                    });
+
+                    return properties;
+                    
+                } catch (error) {
+                    console.error('WordPress API error:', error);
+                    throw error;
+                }
+            }
+
+            normalizePropertyData(wpProperties, filters) {
+                console.log('Normalizing property data for', wpProperties.length, 'properties');
+                
+                const normalized = wpProperties.map(property => {
+                    const title = property.title?.rendered || 'Property';
+                    const content = property.content?.rendered || '';
+                    
+                    const price = this.extractNumber(property.price || 0);
+                    const bedrooms = this.extractNumber(property.bedrooms || 0);
+                    const bathrooms = this.extractNumber(property.bathrooms || 0);
+                    const location = property.location || '';
+                    const area = this.extractNumber(property.built_up_area || property.land_size || 0);
+                    const propertyType = property.property_type || '';
+                    const purpose = property.purpose || '';
+                    
+                    let image = '';
+                    if (property.property_images_urls && property.property_images_urls.length > 0) {
+                        image = property.property_images_urls[0];
+                    }
+                    
+                    const link = property.link || '#';
+                    
+                    return {
+                        id: property.id,
+                        title: this.cleanHtml(title),
+                        price: price,
+                        bedrooms: bedrooms,
+                        bathrooms: bathrooms,
+                        location: location,
+                        area: area,
+                        propertyType: propertyType,
+                        purpose: purpose,
+                        image: image,
+                        link: link,
+                        description: this.cleanHtml(content).substring(0, 150) + '...'
+                    };
+                });
+
+                console.log('Properties after normalization:', normalized.length);
+
+                // Apply preference-based filtering if we have preferences
+                if (filters.preferences) {
+                    const prefs = filters.preferences;
+                    console.log('Applying preference filters:', prefs);
+                    
+                    const filtered = normalized.filter(property => {
+                        let matches = true;
+                        
+                        // Purpose filter (Buy/Rent)
+                        if (prefs.purpose && property.purpose) {
+                            matches = matches && property.purpose.toLowerCase() === prefs.purpose.toLowerCase();
+                        }
+                        
+                        // Location filter (flexible)
+                        if (prefs.location && property.location) {
+                            const locationMatch = property.location.toLowerCase().includes(prefs.location.toLowerCase()) ||
+                                                prefs.location.toLowerCase().includes(property.location.toLowerCase());
+                            matches = matches && locationMatch;
+                        }
+                        
+                        // Bedroom filter (flexible - allow exact match or properties with more bedrooms)
+                        if (prefs.bedrooms && property.bedrooms > 0) {
+                            matches = matches && property.bedrooms >= prefs.bedrooms;
+                        }
+                        
+                        // Property type filter
+                        if (prefs.propertyType && property.propertyType) {
+                            const typeMatch = property.propertyType.toLowerCase().includes(prefs.propertyType.toLowerCase()) ||
+                                            prefs.propertyType.toLowerCase().includes(property.propertyType.toLowerCase());
+                            matches = matches && typeMatch;
+                        }
+                        
+                        // Budget filter (flexible - allow properties within or below budget)
+                        if (prefs.budget && property.price > 0) {
+                            matches = matches && property.price <= prefs.budget * 1.2; // 20% flexibility
+                        }
+                        
+                        return matches;
+                    });
+                    
+                    console.log('Properties after filtering:', filtered.length);
+                    return filtered.slice(0, this.config.maxPropertiesDisplay);
+                }
+
+                return normalized.slice(0, this.config.maxPropertiesDisplay);
+            }
+
+            async formatSearchResults(properties) {
+                if (properties.length === 0) {
+                    return "Let me search our database for properties that might interest you. I'll show you what's available and we can refine the search based on your preferences.";
+                }
+
+                const systemPrompt = `You are a helpful real estate agent. The user has provided their preferences and you've found ${properties.length} properties. Create a friendly, encouraging response that:
+1. Mentions how many properties were found
+2. Highlights that they match the user's criteria
+3. Encourages viewing the properties
+4. Stay positive and professional
+
+Keep it brief and encouraging.`;
+
+                try {
+                    return await this.callAI(this.config.formatterModel, systemPrompt, `Found ${properties.length} properties matching criteria`, 0.7);
+                } catch (error) {
+                    return `Great! I found ${properties.length} properties that match your criteria. Take a look at these options below!`;
+                }
+            }
+
+            async formatAnswer(userMessage, properties) {
+                const systemPrompt = `You are a friendly real estate agent. Respond to the user's property search query naturally and positively. Always be encouraging.`;
+
+                try {
+                    return await this.callAI(this.config.formatterModel, systemPrompt, userMessage, 0.7);
+                } catch (error) {
+                    if (properties.length > 0) {
+                        return `Here are ${properties.length} properties that might interest you! Take a look at the options below.`;
+                    } else {
+                        return `Let me show you what's available in our database. You can let me know if you'd like to adjust your search criteria.`;
+                    }
+                }
+            }
+
+            respondAndAsk(message) {
+                if (this.config.showTypingIndicator) {
+                    this.hideTypingIndicator();
+                }
+                this.addMessage(message, 'bot');
+            }
+
+            async callAI(model, systemPrompt, userMessage, temperature = 0.7) {
+                if (this.config.apiKey === 'YOUR_API_KEY_HERE') {
+                    throw new Error('Please configure your API key');
+                }
+
+                const messages = [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userMessage }
+                ];
+                
+                const response = await fetch(this.config.apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${this.config.apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: messages,
+                        max_tokens: this.config.maxTokens,
+                        temperature: temperature
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`AI API Error ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.choices[0].message.content;
+            }
+
+            displayProperties(properties) {
+                console.log('Displaying', properties.length, 'properties');
+                
+                if (properties.length === 0) {
+                    console.log('No properties to display');
+                    return;
+                }
+
+                const propertiesDiv = document.createElement('div');
+                propertiesDiv.className = 'properties-section';
+                
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'properties-header';
+                headerDiv.textContent = `🏠 Found ${properties.length} Properties`;
+                
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'properties-grid';
+                
+                properties.forEach((property, index) => {
+                    const card = this.createPropertyCard(property, index);
+                    gridDiv.appendChild(card);
+                });
+                
+                propertiesDiv.appendChild(headerDiv);
+                propertiesDiv.appendChild(gridDiv);
+                
+                this.elements.messagesContainer.appendChild(propertiesDiv);
+                this.scrollToBottom();
+                
+                console.log('Properties displayed successfully');
+            }
+
+            createPropertyCard(property, index) {
+                const card = document.createElement('div');
+                card.className = 'property-card';
+                card.dataset.link = property.link;
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                const imageUrl = property.image || 'https://via.placeholder.com/300x200/f0f0f0/666?text=Property+Image';
+                
+                const propertyDetails = [];
+                if (property.bedrooms > 0) {
+                    propertyDetails.push(`<div class="property-detail">🛏️ ${property.bedrooms} bed${property.bedrooms > 1 ? 's' : ''}</div>`);
+                }
+                if (property.bathrooms > 0) {
+                    propertyDetails.push(`<div class="property-detail">🚿 ${property.bathrooms} bath${property.bathrooms > 1 ? 's' : ''}</div>`);
+                }
+                if (property.area > 0) {
+                    propertyDetails.push(`<div class="property-detail">📐 ${property.area.toLocaleString()} sq ft</div>`);
+                }
+                if (property.propertyType) {
+                    propertyDetails.push(`<div class="property-detail">🏠 ${property.propertyType}</div>`);
+                }
+                
+                card.innerHTML = `
+                    <img src="${imageUrl}" alt="${property.title}" class="property-image" 
+                         onerror="this.src='https://via.placeholder.com/300x200/f0f0f0/666?text=No+Image'">
+                    <div class="property-content">
+                        <div class="property-title">${property.title}</div>
+                        <div class="property-meta">
+                            <div class="property-price">${this.formatPriceAED(property.price)}</div>
+                            <div class="property-location">${property.location || 'Location TBD'}</div>
+                        </div>
+                        <div class="property-details">
+                            ${propertyDetails.join('')}
+                        </div>
+                    </div>
+                `;
+                
+                return card;
+            }
+
+            cleanHtml(html) {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                return div.textContent || div.innerText || '';
+            }
+
+            addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = `message-avatar ${sender === 'bot' ? 'bot-avatar' : 'user-message-avatar'}`;
+                
+                if (sender === 'bot') {
+                    const avatarImg = document.createElement('img');
+                    avatarImg.src = this.config.botAvatarMessageUrl;
+                    avatarImg.alt = `${this.config.botName} Avatar`;
+                    avatarImg.onerror = () => {
+                        avatarDiv.innerHTML = '🏠';
+                        avatarDiv.style.fontSize = '16px';
+                        avatarDiv.style.color = '#666';
+                    };
+                    avatarDiv.appendChild(avatarImg);
+                } else {
+                    const avatarImg = document.createElement('img');
+                    avatarImg.src = this.config.userAvatarUrl;
+                    avatarImg.alt = 'Your Avatar';
+                    avatarImg.style.width = '100%';
+                    avatarImg.style.height = '100%';
+                    avatarImg.style.objectFit = 'cover';
+                    
+                    avatarImg.onerror = () => {
+                        avatarDiv.innerHTML = 'U';
+                        avatarDiv.style.fontSize = '14px';
+                        avatarDiv.style.fontWeight = 'bold';
+                        avatarDiv.style.color = 'white';
+                        avatarDiv.style.display = 'flex';
+                        avatarDiv.style.alignItems = 'center';
+                        avatarDiv.style.justifyContent = 'center';
+                    };
+                    
+                    avatarDiv.appendChild(avatarImg);
+                }
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                
+                if (sender === 'bot' && this.config.enableMarkdown) {
+                    contentDiv.innerHTML = this.parseMarkdown(text);
+                } else {
+                    contentDiv.textContent = text;
+                }
+                
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(contentDiv);
+                
+                this.elements.messagesContainer.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            parseMarkdown(text) {
+                if (!text) return '';
+                
+                return text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/^(?!<)/, '<p>')
+                    .replace(/(?<!>)$/, '</p>')
+                    .replace(/<p><\/p>/g, '');
+            }
+
+            showTypingIndicator() {
+                this.hideTypingIndicator();
+                
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator-message';
+                typingDiv.id = 'typing-indicator';
+
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'message-avatar bot-avatar';
+                const avatarImg = document.createElement('img');
+                avatarImg.src = this.config.botAvatarMessageUrl;
+                avatarImg.alt = `${this.config.botName} Avatar`;
+                avatarImg.onerror = () => {
+                    avatarDiv.innerHTML = '🏠';
+                    avatarDiv.style.fontSize = '16px';
+                    avatarDiv.style.color = '#666';
+                };
+                avatarDiv.appendChild(avatarImg);
+
+                const indicatorDiv = document.createElement('div');
+                indicatorDiv.className = 'typing-indicator';
+                indicatorDiv.innerHTML = `
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+
+                typingDiv.appendChild(avatarDiv);
+                typingDiv.appendChild(indicatorDiv);
+                this.elements.messagesContainer.appendChild(typingDiv);
+                this.scrollToBottom();
+            }
+
+            hideTypingIndicator() {
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+
+            showInitialMessage() {
+                this.addMessage(this.config.initialMessage, 'bot');
+                
+                if (this.config.enableQuickActions) {
+                    this.addQuickActions(['👋 Hi', 'I want to buy', 'I want to rent']);
+                }
+            }
+
+            updateConnectionStatus(status) {
+                const { statusDot, statusText, statusMessage } = this.elements;
+                
+                switch (status) {
+                    case 'online':
+                        statusDot.className = 'status-dot';
+                        statusText.textContent = 'Ready to find properties';
+                        statusMessage.textContent = 'Ready to find properties';
+                        break;
+                    case 'failed':
+                        statusDot.className = 'status-dot failed';
+                        statusText.textContent = 'Connection Failed';
+                        statusMessage.textContent = 'Failed';
+                        break;
+                }
+            }
+
+            handleError(error) {
+                this.updateConnectionStatus('failed');
+                console.error("Error:", error);
+                
+                let errorMessage = "I'm having trouble right now, but let me try to help you with what I can. Please try again.";
+                
+                if (error.message.includes('API key')) {
+                    errorMessage = "Please configure your API key to enable AI features. You can still browse properties!";
+                }
+                
+                this.addMessage(errorMessage, 'bot');
+                
+                setTimeout(() => {
+                    this.updateConnectionStatus('online');
+                }, 5000);
+            }
+
+            scrollToBottom() {
+                requestAnimationFrame(() => {
+                    this.elements.messagesContainer.scrollTop = this.elements.messagesContainer.scrollHeight;
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configuration object for easy customization
+            const config = {
+                // Bot Information
+                botName: 'Real Estate AI Agent',
+                
+                // API Configuration - REPLACE WITH YOUR ACTUAL API KEYS
+                apiKey: 'YOUR_API_KEY_HERE', // Replace with your OpenRouter API key
+                wpApiUrl: 'YOUR_WORDPRESS_API_URL/wp-json/wp/v2/property', // Replace with your WordPress API URL
+                wpApiKey: '', // Add your WordPress API key if needed
+                
+                // Theme - Red version
+                primaryColor: '#dc2626',
+                secondaryColor: '#ef4444',
+                
+                // Features
+                prioritizeLocation: true,
+                flexibleFiltering: true,
+                enableQuickActions: true,
+                
+                // Messages
+                greetingMessage: "👋 Hi there! Great to see you! I'm here to help you find your perfect property. Let me start by asking - are you looking to **buy** or **rent** a property?"
+            };
+            
+            window.realEstateAgent = new RealEstateAIAgent(config);
+            console.log('🏠 Real Estate AI Agent initialized successfully!');
+        });
+    </script>
+</body>
+</html>
