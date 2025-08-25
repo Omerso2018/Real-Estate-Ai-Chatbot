@@ -4,9 +4,13 @@
 An interactive, AI-powered real estate chatbot widget designed to act as a **virtual property agent** for real estate websites.  
 It integrates with the **[OpenRouter API](https://openrouter.ai/)** for natural conversation and property search intent detection, and fetches **real-time property listings** from a **WordPress REST API** endpoint.  
 
-![Real Estate Chatbot Preview](https://via.placeholder.com/800x400?text=Real+Estate+AI+Chatbot+Preview)
+# 📷 UI Previews
 
----
+| Theme  | Preview |
+|--------|---------|
+|Red| Red Chatbot UI <img width="2560" height="1440" alt="realui" src="https://github.com/user-attachments/assets/271c99de-8150-4ad0-91f3-379bae8ab254" />
+|
+|cards| Property cards CSS <img width="2560" height="1440" alt="blueUI" src="https://github.com/user-attachments/assets/fd995d70-2a7b-49ee-8682-b79b5dc1f298" />|
 
 ## ✨ Features
 
