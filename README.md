@@ -1,5 +1,5 @@
-# Real-Estate-Ai-Chatbot
-# 🏠 Real Estate AI Chatbot Widget
+# Real Estate AI Agent Chatbot 🏠
+# WordPress Real-Estate Chatbot Widget
 
 An interactive, AI-powered real estate chatbot widget designed to act as a **virtual property agent** for real estate websites.  
 It integrates with the **[OpenRouter API](https://openrouter.ai/)** for natural conversation and property search intent detection, and fetches **real-time property listings** from a **WordPress REST API** endpoint.  
@@ -45,7 +45,9 @@ const config = {
     secondaryColor: '#ef4444'
 };
  ```
+
 ------------------------------------------
+
 ## 📝 How It Works
 #### 1. Information Gathering
 The chatbot follows a structured conversation flow:
@@ -73,7 +75,7 @@ The chatbot follows a structured conversation flow:
 
   
 ## 🛡️ API Call Mechanism 
-### this chatbot with work by 4 API call consist of( 3 AI modele work as agents + one WordPress REST API) connected in a single pipeline:
+### this chatbot with work by 4 API call consist of ( 3 AI modele work as agents + one WordPress REST API) that connected in a single pipeline:
 
 - Agent 1 (Extractor) → turns the user’s message into structured filters (fast, free model)
 
@@ -82,6 +84,7 @@ The chatbot follows a structured conversation flow:
 - Agent 2 (Formatter) → crafts a friendly, human-readable reply using the properties JSON
 
 - Agent 3 (complex Response) → this to take and hanlde user conplex responses
+  
 
 ------------------------------------------------------------------------  
 
