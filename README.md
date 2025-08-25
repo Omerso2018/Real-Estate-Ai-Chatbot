@@ -8,9 +8,8 @@ It integrates with the **[OpenRouter API](https://openrouter.ai/)** for natural 
 
 | Theme  | Preview |
 |--------|---------|
-|Red| Red Chatbot UI <img width="2560" height="1440" alt="realui" src="https://github.com/user-attachments/assets/271c99de-8150-4ad0-91f3-379bae8ab254" />
-|
-|cards| Property cards CSS <img width="2560" height="1440" alt="blueUI" src="https://github.com/user-attachments/assets/fd995d70-2a7b-49ee-8682-b79b5dc1f298" />|
+|Red| Red Chatbot UI <img width="2560" height="1440" alt="realui" src="https://github.com/user-attachments/assets/271c99de-8150-4ad0-91f3-379bae8ab254" />|
+|cards| Property cards CSS <img width="2560" height="1440" alt="cards" src="https://github.com/user-attachments/assets/24e3d6bf-efae-41cd-b374-07977d5be42a" />|
 
 ## ✨ Features
 
