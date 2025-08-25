@@ -45,38 +45,45 @@ const config = {
     secondaryColor: '#ef4444'
 };
  ```
-📝 How It Works
-1. Information Gathering
+------------------------------------------
+## 📝 How It Works
+#### 1. Information Gathering
 The chatbot follows a structured conversation flow:
-
 - Purpose (Buy/Rent)
 - Location preferences
 - Budget range
 - Number of bedrooms
 - Property type
 - Additional preferences
-2. AI Processing
+### 2. AI Processing
 - Extracts information from natural language
 - Maintains conversation context
 - Generates relevant responses
 - Handles complex user queries
-3. Property Search
+### 3. Property Search
 - Queries WordPress API with user preferences
 - Applies intelligent filtering
 - Caches results for performance
 - Displays properties in beautiful cards
-4. User Interaction
+### 4. User Interaction
 - Click property cards to view details
 - Use quick action buttons
 - Natural conversation flow
 - Mobile-responsive interface
-## 🛡️ Rate Limiting & Caching
 
-AI API calls are limited to 8 per minute by default.
+  
+## 🛡️ API Call Mechanism 
+### this chatbot with work by 4 API call consist of( 3 AI modele work as agents + one WordPress REST API) connected in a single pipeline:
 
-Property API calls are limited to 5 per minute with a 5-minute cache.
+- Agent 1 (Extractor) → turns the user’s message into structured filters (fast, free model)
 
-These values can be adjusted in the configuration.
+- WordPress REST API → fetches properties using those filters (server-side filtering where possible + client-side fallback)
+
+- Agent 2 (Formatter) → crafts a friendly, human-readable reply using the properties JSON
+
+- Agent 3 (complex Response) → this to take and hanlde user conplex responses
+
+------------------------------------------------------------------------  
 
 ## 📄 License
 This project is open source and available under the MIT License.
