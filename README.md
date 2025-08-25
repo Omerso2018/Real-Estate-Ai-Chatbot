@@ -22,6 +22,7 @@ It integrates with the **[OpenRouter API](https://openrouter.ai/)** for natural 
 - **Rate Limiting & Caching** – Prevents API overuse and optimizes data fetching.
 - **Customizable Theme** – Easily adjust colors, avatars, and chatbot name.
 
+-----------------------------------------
 ## 🚀 Quick Start
 
 ### 1. Download the Files
@@ -55,12 +56,12 @@ const config = {
 1. Open your WordPress admin panel.
 2. Go to **Plugins** > **WPCode** (or any other Code Snippet manager).
 3. Create a new **HTML snippet**.
-4. Copy the content of `WP-Chatbot-Dark.html` into the snippet.
+4. Copy the content of `real-estat-chatbot.html` into the snippet.
 5. Save and enable the snippet on the frontend.
 
 > 💡 The chatbot widget will appear as a floating bubble on the bottom-right corner of your website.
 
----
+
 ------------------------------------------
 
 ## 📝 How It Works
