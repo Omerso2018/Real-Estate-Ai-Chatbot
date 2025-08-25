@@ -19,64 +19,57 @@ It integrates with the **[OpenRouter API](https://openrouter.ai/)** for natural 
 - **Rate Limiting & Caching** – Prevents API overuse and optimizes data fetching.
 - **Customizable Theme** – Easily adjust colors, avatars, and chatbot name.
 
----
+## 🚀 Quick Start
 
-## 📦 Installation
-
-1. **Download** or **clone** this repository:
-   ```bash
-   git clone https://github.com/Omerso2018/Real-Estate-Ai-Chatbot
-2. Add the chatbot HTML file to your real estate website:
-
-Place the wp-real-estate-agent.html in your project or theme folder.
- 
-Include it in your site via an iframe or directly embed the code in your WordPress theme.
-
-3. Configure your chatbot in the script section:
-
-Replace YOUR_OPENROUTER_API_KEY_HERE with your OpenRouter API key.
-
-Replace https://yourdomain.com/wp-json/wp/v2/property with your WordPress property endpoint URL.  
-
-------------
-# 🔌 WordPress REST API Setup
-
-Ensure your WordPress site has:
-
-Property Custom Post Type (e.g., property)
-
-REST API enabled
-
-Custom meta fields for price, location, bedrooms, bathrooms, area, and property type.
-
-Example endpoint:
+### 1. Download the Files
+```bash
+git clone https://github.com/yourusername/real-estate-chatbot.git
+cd real-estate-chatbot
  ```
-https://yourdomain.com/wp-json/wp/v2/property
+### 2. Configure API Keys
+Open real-estate-chatbot.html and update the configuration:
+```
+const config = {
+    // Replace with your OpenRouter API key
+    apiKey: 'YOUR_OPENROUTER_API_KEY_HERE',
+    
+    // Replace with your WordPress API URL
+    wpApiUrl: 'https://yoursite.com/wp-json/wp/v2/property',
+    
+    // Optional: WordPress API authentication
+    wpApiKey: 'YOUR_WP_API_KEY',
+    
+    // Customize bot name and theme
+    botName: 'Your Real Estate AI',
+    primaryColor: '#dc2626',
+    secondaryColor: '#ef4444'
+};
  ```
-You can filter results by adding query params such as:
- ```
-?search=London&max_price=500000&min_bedrooms=3
- ```
------------
+📝 How It Works
+1. Information Gathering
+The chatbot follows a structured conversation flow:
 
-# 🚀 Usage
-
-Click the floating chat icon to open the chatbot.
-
-Ask questions like:
-
-❓ "Find me an apartment in New York under $800,000" 
-
-❓ "Show me houses in Dubai with 4 bedrooms"
-
-The chatbot will:
-
-✅ Detect your intent and extract filters.
-
-✅ Fetch matching properties from your WordPress site.
-
-✅ Display them as interactive cards in the chat.
-
+- Purpose (Buy/Rent)
+- Location preferences
+- Budget range
+- Number of bedrooms
+- Property type
+- Additional preferences
+2. AI Processing
+- Extracts information from natural language
+- Maintains conversation context
+- Generates relevant responses
+- Handles complex user queries
+3. Property Search
+- Queries WordPress API with user preferences
+- Applies intelligent filtering
+- Caches results for performance
+- Displays properties in beautiful cards
+4. User Interaction
+- Click property cards to view details
+- Use quick action buttons
+- Natural conversation flow
+- Mobile-responsive interface
 ## 🛡️ Rate Limiting & Caching
 
 AI API calls are limited to 8 per minute by default.
@@ -86,5 +79,16 @@ Property API calls are limited to 5 per minute with a 5-minute cache.
 These values can be adjusted in the configuration.
 
 ## 📄 License
+This project is open source and available under the MIT License.
 
-This project is licensed under the MIT License – see the LICENSE file for details.
+## 🤝 Contributing
+Contributions are welcome! Please:
+
+- Fork the repository
+- Create a feature branch
+- Make your changes
+- Test thoroughly
+- Submit a pull request
+### Made with ❤️ for the real estate industry
+
+### ⭐ If you find this useful, please give it a star on GitHub!
